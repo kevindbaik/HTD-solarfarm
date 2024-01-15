@@ -13,4 +13,17 @@ public class PanelFileRepositoryTest {
         assertNotNull(actual);
         assertEquals(5, actual.size());
     }
+
+    @Test
+    void shouldFindBySection(){
+        List<Panel> ridge = repository.findBySection("The Ridge");
+        assertNotNull(ridge);
+        assertEquals(5, ridge.size());
+    }
+
+    @Test
+    void shouldNotFindBySection() {
+        List<Panel> none = repository.findBySection("Nothing");
+        assertEquals(0, none.size());
+    }
 }

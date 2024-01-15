@@ -38,4 +38,15 @@ public class PanelFileRepository {
         }
         return result;
     }
+
+    public List<Panel> findBySection(String section) {
+        List<Panel> allPanels = findAll();
+        List<Panel> matchingPanels = new ArrayList<>();
+
+        for(Panel panel : allPanels) {
+            if(panel.getSection().equalsIgnoreCase(section)) matchingPanels.add(panel);
+        }
+
+        return matchingPanels;
+    }
 }
