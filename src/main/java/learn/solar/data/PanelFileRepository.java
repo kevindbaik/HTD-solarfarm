@@ -6,7 +6,7 @@ import learn.solar.models.Panel;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-public class PanelFileRepository {
+public class PanelFileRepository implements PanelRepository {
     private String filePath;
 
     public PanelFileRepository(String filePath) {
@@ -38,6 +38,7 @@ public class PanelFileRepository {
         return result;
     }
 
+    @Override
     public List<Panel> findBySection(String section) throws DataException{
         List<Panel> allPanels = findAll();
         List<Panel> matchingPanels = new ArrayList<>();
@@ -49,6 +50,7 @@ public class PanelFileRepository {
         return matchingPanels;
     }
 
+    @Override
     public Panel add(Panel panel) throws DataException{
         List<Panel> allPanels = findAll();
         int nextId = 0;
@@ -62,6 +64,7 @@ public class PanelFileRepository {
         return panel;
     }
 
+    @Override
     public boolean update(Panel panel) throws DataException {
         List<Panel> allPanels = findAll();
         for(int i = 0; i < allPanels.size(); i++) {
@@ -74,6 +77,7 @@ public class PanelFileRepository {
         return false;
     }
 
+    @Override
     public boolean deleteById(int id) throws DataException {
         List<Panel> allPanels = findAll();
         for(int i = 0; i < allPanels.size(); i++) {
