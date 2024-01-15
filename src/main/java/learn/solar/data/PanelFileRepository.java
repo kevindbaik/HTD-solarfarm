@@ -6,6 +6,7 @@ import learn.solar.models.Panel;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 public class PanelFileRepository {
@@ -14,19 +15,6 @@ public class PanelFileRepository {
     public PanelFileRepository(String filePath) {
         this.filePath = filePath;
     }
-
-    public String serialize(Panel panel) {
-        return String.join(",",
-                String.valueOf(panel.getId()),
-                panel.getSection(),
-                String.valueOf(panel.getRow()),
-                String.valueOf(panel.getColumn()),
-                String.valueOf(panel.getInstallationYear()),
-                panel.getMaterial().getAbbreviation(),
-                String.valueOf(panel.isTracking())
-        );
-    }
-
     public Panel deserialize(String line) {
         String[] fields = line.split(",");
         if(fields.length == 7) {
@@ -76,4 +64,41 @@ public class PanelFileRepository {
 
         return matchingPanels;
     }
+
+    public Panel add(Panel panel) throws DataException{
+        List<Panel> allPanels = findAll();
+        int nextId = 0;
+        for(Panel p : allPanels) {
+            nextId = Math.max(nextId, p.getId());
+        }
+        nextId++;
+        panel.setId(nextId);
+        allPanels.add(panel);
+        writeAll(allPanels);
+        return panel;
+    }
+
+    private void writeAll(List<Panel> panels) throws DataException {
+        try(PrintWriter writer = new PrintWriter(filePath)) {
+            writer.println("id, section, row, column, installationYear, material, tracking");
+            for(Panel p : panels) {
+                writer.println(serialize(p));
+            }
+        } catch (IOException ex) {
+            throw new DataException(ex.getMessage(), ex);
+        }
+    }
+
+    public String serialize(Panel panel) {
+        return String.format("%s,%s,%s,%s,%s,%s,%s",
+                panel.getId(),
+                panel.getSection(),
+                panel.getRow(),
+                panel.getColumn(),
+                panel.getInstallationYear(),
+                panel.getMaterial().getAbbreviation(),
+                panel.isTracking()
+        );
+    }
+
 }
