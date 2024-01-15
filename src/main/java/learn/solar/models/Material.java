@@ -22,5 +22,14 @@ public enum Material {
     public String getAbbreviation() {
         return abbreviation;
     }
+
+    public static Material findByAbbreviation(String abbreviation) {
+        for (Material material : values()) {
+            if (material.getAbbreviation().equalsIgnoreCase(abbreviation)) {
+                return material;
+            }
+        }
+        throw new IllegalArgumentException("No material found for abbreviation: " + abbreviation);
+    }
 }
 
