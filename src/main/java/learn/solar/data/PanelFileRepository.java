@@ -3,10 +3,7 @@ package learn.solar.data;
 import learn.solar.models.Material;
 import learn.solar.models.Panel;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 public class PanelFileRepository {
@@ -15,22 +12,7 @@ public class PanelFileRepository {
     public PanelFileRepository(String filePath) {
         this.filePath = filePath;
     }
-    public Panel deserialize(String line) {
-        String[] fields = line.split(",");
-        if(fields.length == 7) {
-            Panel panel = new Panel();
-            panel.setId(Integer.parseInt(fields[0]));
-            panel.setSection(fields[1]);
-            panel.setRow(Integer.parseInt(fields[2]));
-            panel.setColumn(Integer.parseInt(fields[3]));
-            panel.setInstallationYear(Integer.parseInt(fields[4]));
-            panel.setMaterial(Material.findByAbbreviation(fields[5]));
-            panel.setTracking(Boolean.parseBoolean(fields[6]));
-            return panel;
-        }
-        return null;
-    }
-    public List<Panel> findAll() {
+    private List<Panel> findAll() throws DataException {
         ArrayList<Panel> result = new ArrayList<>();
         try(BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             reader.readLine();
@@ -48,13 +30,15 @@ public class PanelFileRepository {
                     result.add(panel);
                 }
             }
+        } catch(FileNotFoundException ex) {
+            // okay to ignore.
         } catch(IOException ex) {
-
+            throw new DataException(ex.getMessage(), ex);
         }
         return result;
     }
 
-    public List<Panel> findBySection(String section) {
+    public List<Panel> findBySection(String section) throws DataException{
         List<Panel> allPanels = findAll();
         List<Panel> matchingPanels = new ArrayList<>();
 
@@ -84,7 +68,20 @@ public class PanelFileRepository {
             if(allPanels.get(i).getId() == panel.getId()) {
                 allPanels.set(i, panel);
                 writeAll(allPanels);
-                return true;}
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean deleteById(int id) throws DataException {
+        List<Panel> allPanels = findAll();
+        for(int i = 0; i < allPanels.size(); i++) {
+            if(allPanels.get(i).getId() == id) {
+                allPanels.remove(i);
+                writeAll(allPanels);
+                return true;
+            }
         }
         return false;
     }
@@ -100,7 +97,7 @@ public class PanelFileRepository {
         }
     }
 
-    public String serialize(Panel panel) {
+    private String serialize(Panel panel) {
         return String.format("%s,%s,%s,%s,%s,%s,%s",
                 panel.getId(),
                 panel.getSection(),
@@ -112,4 +109,19 @@ public class PanelFileRepository {
         );
     }
 
+    private Panel deserialize(String line) {
+        String[] fields = line.split(",");
+        if(fields.length == 7) {
+            Panel panel = new Panel();
+            panel.setId(Integer.parseInt(fields[0]));
+            panel.setSection(fields[1]);
+            panel.setRow(Integer.parseInt(fields[2]));
+            panel.setColumn(Integer.parseInt(fields[3]));
+            panel.setInstallationYear(Integer.parseInt(fields[4]));
+            panel.setMaterial(Material.findByAbbreviation(fields[5]));
+            panel.setTracking(Boolean.parseBoolean(fields[6]));
+            return panel;
+        }
+        return null;
+    }
 }

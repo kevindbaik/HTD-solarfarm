@@ -25,21 +25,14 @@ public class PanelFileRepositoryTest {
                 StandardCopyOption.REPLACE_EXISTING);
     }
     @Test
-    void shouldFindFivePanels() {
-        List<Panel> actual = repository.findAll();
-        assertNotNull(actual);
-        assertEquals(5, actual.size());
-    }
-
-    @Test
-    void shouldFindBySection(){
+    void shouldFindBySection() throws DataException{
         List<Panel> ridge = repository.findBySection("The Ridge");
         assertNotNull(ridge);
         assertEquals(5, ridge.size());
     }
 
     @Test
-    void shouldNotFindBySection() {
+    void shouldNotFindBySection() throws DataException {
         List<Panel> none = repository.findBySection("Nothing");
         assertEquals(0, none.size());
     }
@@ -82,6 +75,18 @@ public class PanelFileRepositoryTest {
         panel.setId(100000);
 
         boolean actual = repository.update(panel);
+        assertFalse(actual);
+    }
+
+    @Test
+    void shouldDeleteExisting() throws DataException {
+        boolean actual = repository.deleteById(2);
+        assertTrue(actual);
+    }
+
+    @Test
+    void shouldNotDeleteMissing() throws DataException {
+        boolean actual = repository.deleteById(23444);
         assertFalse(actual);
     }
 }
