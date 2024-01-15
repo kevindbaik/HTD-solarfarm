@@ -78,6 +78,17 @@ public class PanelFileRepository {
         return panel;
     }
 
+    public boolean update(Panel panel) throws DataException {
+        List<Panel> allPanels = findAll();
+        for(int i = 0; i < allPanels.size(); i++) {
+            if(allPanels.get(i).getId() == panel.getId()) {
+                allPanels.set(i, panel);
+                writeAll(allPanels);
+                return true;}
+        }
+        return false;
+    }
+
     private void writeAll(List<Panel> panels) throws DataException {
         try(PrintWriter writer = new PrintWriter(filePath)) {
             writer.println("id, section, row, column, installationYear, material, tracking");

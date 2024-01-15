@@ -59,4 +59,29 @@ public class PanelFileRepositoryTest {
         assertNotNull(actual);
         assertEquals(6, actual.getId());
     }
+
+    @Test
+    void shouldUpdateExisting() throws DataException {
+        Panel panel = new Panel();
+        panel.setId(3);
+        panel.setSection("Updated Ridge");
+        panel.setMaterial(Material.CADMIUM_TELLURIDE);
+        panel.setTracking(false);
+
+        boolean success = repository.update(panel);
+        assertTrue(success);
+
+        List<Panel> actual = repository.findBySection("Updated Ridge");
+        assertNotNull(actual);
+        assertEquals(1, actual.size());
+    }
+
+    @Test
+    void shouldNotUpdateMissing() throws DataException {
+        Panel panel = new Panel();
+        panel.setId(100000);
+
+        boolean actual = repository.update(panel);
+        assertFalse(actual);
+    }
 }
