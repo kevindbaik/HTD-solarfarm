@@ -29,6 +29,9 @@ public class PanelService {
         if(!result.isSuccess()) {
             return result;
         }
+
+        panel = repository.add(panel);
+        result.setPanel(panel);
         return result;
     }
 
@@ -39,7 +42,6 @@ public class PanelService {
         // Column is a positive number less than or equal to 250.
         // Year Installed must be in the past.
         // Material is required and can only be one of the five materials listed.
-        // Is Tracking is required.
         // The combined values of Section, Row, and Column may not be duplicated.
         PanelResult result = new PanelResult();
 
@@ -73,8 +75,7 @@ public class PanelService {
             return result;
         }
 
-        List<Panel> existingPanels = repository.findBySection(panel.getSection());
-        if(isDuplicatePanel(panel, existingPanels)) {
+        if (isDuplicatePanel(panel)) {
             result.addErrorMessage("A panel with the same Section, Row, and Column already exists.");
             return result;
         }
@@ -82,15 +83,15 @@ public class PanelService {
         return result;
     }
 
-    private boolean isDuplicatePanel(Panel panel, List<Panel> existingPanels) {
+    private boolean isDuplicatePanel(Panel panel) throws DataException {
+        List<Panel> existingPanels = repository.findBySection(panel.getSection());
         for (Panel existingPanel : existingPanels) {
-            if (existingPanel.getSection().equals(panel.getSection())
-                    && existingPanel.getRow() == panel.getRow()
-                    && existingPanel.getColumn() == panel.getColumn()) {
+            if (existingPanel.getRow() == panel.getRow()
+                    && existingPanel.getColumn() == panel.getColumn())
+                     {
                 return true;
             }
         }
         return false;
-
     }
 }

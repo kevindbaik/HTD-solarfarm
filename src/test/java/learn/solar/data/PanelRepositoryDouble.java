@@ -27,7 +27,7 @@ public class PanelRepositoryDouble implements PanelRepository {
 
     @Override
     public Panel add(Panel panel) throws DataException {
-        panel.setId(99);
+        allPanels.add(panel);
         return panel;
     }
 
