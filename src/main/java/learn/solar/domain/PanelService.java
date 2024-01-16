@@ -95,6 +95,8 @@ public class PanelService {
             return result;
         }
 
+        // when updating a panel, this validation will always fail because when updating the row/col exists.
+        // so i added a second parameter to differentiate validation for adding and updating.
         if (!isUpdate && isDuplicatePanel(panel)) {
             result.addErrorMessage("A panel with the same Section, Row, and Column already exists.");
             return result;
