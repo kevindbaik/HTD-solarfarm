@@ -25,7 +25,7 @@ public class PanelService {
 
     // validate, then add via repository
     public PanelResult add(Panel panel) throws DataException {
-        PanelResult result = validate(panel);
+        PanelResult result = validate(panel, false);
         if(!result.isSuccess()) {
             return result;
         }
@@ -35,8 +35,28 @@ public class PanelService {
         return result;
     }
 
+    public PanelResult update(Panel panel) throws DataException {
+        PanelResult result = validate(panel, true);
+        if(!result.isSuccess()) return result;
+
+        boolean updated = repository.update(panel);
+        if(!updated) {
+            result.addErrorMessage(String.format("Panel with id: %s does not exist", panel.getId()));
+        }
+        result.setPanel(panel);
+        return result;
+    }
+
+    public PanelResult deleteById(int panelId) throws DataException {
+        PanelResult result = new PanelResult();
+        if(!repository.deleteById(panelId)) {
+            result.addErrorMessage(String.format("Panel with id: %s does not exist", panelId));
+        }
+        return result;
+    }
+
     // general-purpose validation routine
-    private PanelResult validate(Panel panel) throws DataException {
+    private PanelResult validate(Panel panel, boolean isUpdate) throws DataException {
         // Section is required and cannot be blank.
         // Row is a positive number less than or equal to 250.
         // Column is a positive number less than or equal to 250.
@@ -75,7 +95,7 @@ public class PanelService {
             return result;
         }
 
-        if (isDuplicatePanel(panel)) {
+        if (!isUpdate && isDuplicatePanel(panel)) {
             result.addErrorMessage("A panel with the same Section, Row, and Column already exists.");
             return result;
         }
@@ -87,7 +107,8 @@ public class PanelService {
         List<Panel> existingPanels = repository.findBySection(panel.getSection());
         for (Panel existingPanel : existingPanels) {
             if (existingPanel.getRow() == panel.getRow()
-                    && existingPanel.getColumn() == panel.getColumn())
+                    && existingPanel.getColumn() == panel.getColumn()
+                    && existingPanel.getId() != panel.getId())
                      {
                 return true;
             }

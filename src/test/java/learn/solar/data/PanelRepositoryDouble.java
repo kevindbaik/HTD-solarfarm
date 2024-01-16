@@ -33,7 +33,13 @@ public class PanelRepositoryDouble implements PanelRepository {
 
     @Override
     public boolean update(Panel panel) throws DataException {
-        return panel.getId() > 0;
+        for(int i = 0; i < allPanels.size(); i++) {
+            if(allPanels.get(i).getId() == panel.getId()) {
+                allPanels.set(i, panel);
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

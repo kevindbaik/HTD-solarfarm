@@ -90,4 +90,52 @@ public class PanelServiceTest {
         assertNull(actual.getPanel());
         assertEquals("A panel with the same Section, Row, and Column already exists.", actual.getMessages().get(0));
     }
+
+    @Test
+    public void shouldUpdateExistingPanel() throws DataException {
+        List<Panel> section = repository.findBySection("The Ridge");
+        Panel toUpdate = section.get(0);
+        assertEquals(1, toUpdate.getRow());
+        assertEquals(1, toUpdate.getColumn());
+        toUpdate.setRow(2);
+        toUpdate.setColumn(2);
+        toUpdate.setInstallationYear(2023);
+
+        PanelResult actual = service.update(toUpdate);
+        assertTrue(actual.isSuccess());
+        assertEquals(2, actual.getPanel().getRow());
+        assertEquals(2, actual.getPanel().getColumn());
+        assertEquals(2023, actual.getPanel().getInstallationYear());
+    }
+
+    @Test
+    public void shouldNotUpdateNonExistingPanel() throws DataException {
+        Panel panel = new Panel(24, "Testing", 1, 4, 2016, Material.AMORPHOUS_SILICON, false);
+        PanelResult actual = service.update(panel);
+        assertFalse(actual.isSuccess());
+        assertEquals(1, actual.getMessages().size());
+        assertTrue(actual.getMessages().get(0).contains("does not exist"));
+    }
+
+    @Test
+    public void shouldNotUpdateNullPanel() throws DataException {
+        PanelResult actual = service.update(null);
+        assertFalse(actual.isSuccess());
+        assertEquals(1, actual.getMessages().size());
+        assertEquals("Panel cannot be null.", actual.getMessages().get(0));
+    }
+
+    @Test
+    public void shouldDeleteExistingPanel() throws DataException {
+        PanelResult actual = service.deleteById(1);
+        assertTrue(actual.isSuccess());
+    }
+
+    @Test
+    public void shouldNotDeleteNonExistingPanel() throws DataException {
+        PanelResult actual = service.deleteById(999);
+        assertFalse(actual.isSuccess());
+        assertEquals(1, actual.getMessages().size());
+        assertTrue(actual.getMessages().get(0).contains("does not exist"));
+    }
 }
